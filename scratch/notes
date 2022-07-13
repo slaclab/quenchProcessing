@@ -1,0 +1,27 @@
+xPv {
+  0 "$(CM)$(C)0:CAV:FLTTWF"
+  1 "$(CM)$(C)0:FWD:FLTTWF"
+  2 "$(CM)$(C)0:REV:FLTTWF"
+  3 "$(CM)$(C)0:CAV:FLTTWF"
+}
+yPv {
+  0 "$(CM)$(C)0:DECAYREFWF"
+  1 "$(CM)$(C)0:FWD:FLTAWF"
+  2 "$(CM)$(C)0:REV:FLTAWF"
+  3 "$(CM)$(C)0:CAV:FLTAWF"
+}
+nPv {
+  0 "$(CM)$(C)0:CAV:FLTNORD"
+  1 "$(CM)$(C)0:FWD:FLTNORD"
+  2 "$(CM)$(C)0:REV:FLTNORD"
+  3 "$(CM)$(C)0:CAV:FLTNORD"
+}
+
+ACCL:L3B:3440:QLOADED
+
+A(t) = A0 * e^((-2 * pi * cav_freq * t)/(2 * loaded_Q)) = A0 * e ^ ((-pi * cav_freq * t)/loaded_Q)
+
+ln(A(t)) = ln(A0) + ln(e ^ ((-pi * cav_freq * t)/loaded_Q)) = ln(A0) - ((pi * cav_freq * t)/loaded_Q)
+polyfit(t, ln(A(t)), 1) = [-((pi * cav_freq)/loaded_Q), ln(A0)]
+
+https://education.molssi.org/python-data-analysis/03-data-fitting/index.html
