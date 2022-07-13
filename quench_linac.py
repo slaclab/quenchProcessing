@@ -43,13 +43,15 @@ class QuenchCavity(scLinac.Cavity):
         fault_data = fault_data[idx:]
         time_data = time_data[idx:]
         
-        exponential_term = np.polyfit(time_data, np.log(fault_data), 1)[0]
+        exponential_term, ln_A0 = np.polyfit(time_data, np.log(fault_data), 1)
         loaded_q = (-np.pi * self.frequency) / exponential_term
         saved_loaded_q = caget(self.currentQLoadedPV.pvname)
         thresh_for_quench = LOADED_Q_CHANGE_FOR_QUENCH * saved_loaded_q
-        print(f"Calculated Loaded Q: {loaded_q}")
-        print(f"Saved Loaded Q: {saved_loaded_q}")
-        print(f"Threshold: {thresh_for_quench}")
+        print(f"\nCM{self.cryomodule.name}", f"Cavity {self.number}")
+        print("Calculated Quench Amplitude: ", np.exp(ln_A0))
+        print("Calculated Loaded Q: ", "{:e}".format(loaded_q))
+        print("Saved Loaded Q: ", "{:e}".format(saved_loaded_q))
+        print("Threshold: ", "{:e}\n".format(thresh_for_quench))
         return loaded_q < thresh_for_quench
 
 

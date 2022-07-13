@@ -360,6 +360,9 @@
      <property name="showLegend">
       <bool>true</bool>
      </property>
+     <property name="timeSpan">
+      <double>600.000000000000000</double>
+     </property>
     </widget>
    </item>
    <item row="6" column="0" rowspan="6">
