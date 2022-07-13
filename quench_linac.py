@@ -1,6 +1,9 @@
+from functools import partial
+
 import numpy as np
 from epics import PV, caget
 from lcls_tools.superconducting import scLinac
+from scipy.optimize import curve_fit
 
 LOADED_Q_CHANGE_FOR_QUENCH = 0.9
 
@@ -16,6 +19,10 @@ class QuenchCavity(scLinac.Cavity):
         self.decay_ref_pv = self.pvPrefix + "DECAYREFWF"
         self.cav_time_waveform_pv = self.pvPrefix + "CAV:FLTTWF"
         self.quench_latch_pv_obj = PV(self.quench_latch_pv)
+    
+    def expected_trace(self, pre_quench_amp, time, q_loaded):
+        exponential_term = -(np.pi * self.frequency * time) / q_loaded
+        return pre_quench_amp * np.exp(exponential_term)
     
     def validate_quench(self):
         """
@@ -43,15 +50,28 @@ class QuenchCavity(scLinac.Cavity):
         fault_data = fault_data[idx:]
         time_data = time_data[idx:]
         
+        saved_loaded_q = caget(self.currentQLoadedPV.pvname)
+        
+        expected_trace = partial(self.expected_trace, fault_data[0])
+        parameters, covariance = curve_fit(expected_trace, time_data, fault_data)
+        
+        q_loaded = parameters[0]
+        
         exponential_term, ln_A0 = np.polyfit(time_data, np.log(fault_data), 1)
         loaded_q = (-np.pi * self.frequency) / exponential_term
-        saved_loaded_q = caget(self.currentQLoadedPV.pvname)
+        
         thresh_for_quench = LOADED_Q_CHANGE_FOR_QUENCH * saved_loaded_q
         print(f"\nCM{self.cryomodule.name}", f"Cavity {self.number}")
+        print("Saved Loaded Q: ", "{:e}".format(saved_loaded_q))
+        print("Last recorded amplitude: ", fault_data[0])
+        print("Threshold: ", "{:e}\n".format(thresh_for_quench))
+        
+        print("Polyfit")
         print("Calculated Quench Amplitude: ", np.exp(ln_A0))
         print("Calculated Loaded Q: ", "{:e}".format(loaded_q))
-        print("Saved Loaded Q: ", "{:e}".format(saved_loaded_q))
-        print("Threshold: ", "{:e}\n".format(thresh_for_quench))
+        
+        print("Curvefit")
+        print("Calculated Loaded Q: ", "{:e}".format(q_loaded))
         return loaded_q < thresh_for_quench
 
 
