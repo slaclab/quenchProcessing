@@ -48,15 +48,15 @@ class QuenchCavity(scLinac.Cavity):
         fault_data = fault_data[time_0:]
         time_data = time_data[time_0:]
         
-        time_end = len(time_data) - 1
+        end_decay = len(fault_data) - 1
         
-        # Only look at the first 30ms (This helps the fit for some reason)
-        for time_end, time in enumerate(time_data):
-            if time >= 0.001:
+        # Find where the amplitude decays to 1/e
+        for end_decay, amp in enumerate(fault_data):
+            if end_decay <= 1 / np.exp(1):
                 break
         
-        fault_data = fault_data[:time_end]
-        time_data = time_data[:time_end]
+        fault_data = fault_data[:end_decay]
+        time_data = time_data[:end_decay]
         
         saved_loaded_q = caget(self.currentQLoadedPV.pvname)
         self.pre_quench_amp = fault_data[0]
