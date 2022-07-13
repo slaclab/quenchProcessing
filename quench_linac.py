@@ -39,27 +39,30 @@ class QuenchCavity(scLinac.Cavity):
         fault_data = caget(self.fault_waveform_pv)
         time_data = caget(self.cav_time_waveform_pv)
         time_0 = 0
-        
-        # Look for time 0 (quench). These waveforms capture data beforehand
-        for time_0, time in enumerate(time_data):
-            if time >= 0:
-                break
-        
-        fault_data = fault_data[time_0:]
-        time_data = time_data[time_0:]
-        
-        end_decay = len(fault_data) - 1
-        
-        # Find where the amplitude decays to 1/e
-        for end_decay, amp in enumerate(fault_data):
-            if end_decay <= 1 / np.exp(1):
-                break
-        
-        fault_data = fault_data[:end_decay]
-        time_data = time_data[:end_decay]
-        
-        saved_loaded_q = caget(self.currentQLoadedPV.pvname)
-        self.pre_quench_amp = fault_data[0]
+        try:
+            # Look for time 0 (quench). These waveforms capture data beforehand
+            for time_0, time in enumerate(time_data):
+                if time >= 0:
+                    break
+            
+            fault_data = fault_data[time_0:]
+            time_data = time_data[time_0:]
+            
+            end_decay = len(fault_data) - 1
+            
+            # Find where the amplitude decays to 1/e
+            for end_decay, amp in enumerate(fault_data):
+                if end_decay <= 1 / np.exp(1):
+                    break
+            
+            fault_data = fault_data[:end_decay]
+            time_data = time_data[:end_decay]
+            
+            saved_loaded_q = caget(self.currentQLoadedPV.pvname)
+            self.pre_quench_amp = fault_data[0]
+        except TypeError as e:
+            print(e)
+            return None
         
         try:
             exponential_term = np.polyfit(time_data, np.log(self.pre_quench_amp / fault_data), 1)[0]
