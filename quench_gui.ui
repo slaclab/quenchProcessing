@@ -287,11 +287,17 @@
      <property name="showYGrid">
       <bool>true</bool>
      </property>
+     <property name="yAxes">
+      <stringlist/>
+     </property>
      <property name="title" stdset="0">
-      <string>Fault Waveform</string>
+      <string>Most Recent Fault Waveform (Not Real Time)</string>
      </property>
      <property name="showLegend">
       <bool>true</bool>
+     </property>
+     <property name="curves">
+      <stringlist/>
      </property>
     </widget>
    </item>
