@@ -1,5 +1,3 @@
-from functools import partial
-
 import numpy as np
 from epics import PV, caget
 from lcls_tools.superconducting import scLinac
@@ -19,10 +17,11 @@ class QuenchCavity(scLinac.Cavity):
         self.decay_ref_pv = self.pvPrefix + "DECAYREFWF"
         self.cav_time_waveform_pv = self.pvPrefix + "CAV:FLTTWF"
         self.quench_latch_pv_obj = PV(self.quench_latch_pv)
+        self.pre_quench_amp = None
     
-    def expected_trace(self, pre_quench_amp, time, q_loaded):
+    def expected_trace(self, time, q_loaded):
         exponential_term = -(np.pi * self.frequency * time) / q_loaded
-        return pre_quench_amp * np.exp(exponential_term)
+        return self.pre_quench_amp * np.exp(exponential_term)
     
     def validate_quench(self):
         """
@@ -51,9 +50,9 @@ class QuenchCavity(scLinac.Cavity):
         time_data = time_data[idx:]
         
         saved_loaded_q = caget(self.currentQLoadedPV.pvname)
+        self.pre_quench_amp = fault_data[0]
         
-        expected_trace = partial(self.expected_trace, fault_data[0])
-        parameters, covariance = curve_fit(expected_trace, time_data, fault_data)
+        parameters, covariance = curve_fit(self.expected_trace, time_data, fault_data)
         
         q_loaded = parameters[0]
         
