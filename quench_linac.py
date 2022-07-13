@@ -57,18 +57,22 @@ class QuenchCavity(scLinac.Cavity):
         saved_loaded_q = caget(self.currentQLoadedPV.pvname)
         self.pre_quench_amp = fault_data[0]
         
-        exponential_term, ln_A0 = np.polyfit(time_data, np.log(fault_data), 1)
-        loaded_q = (-np.pi * self.frequency) / exponential_term
-        
-        thresh_for_quench = LOADED_Q_CHANGE_FOR_QUENCH * saved_loaded_q
-        print(f"\nCM{self.cryomodule.name}", f"Cavity {self.number}")
-        print("Saved Loaded Q: ", "{:e}".format(saved_loaded_q))
-        print("Last recorded amplitude: ", fault_data[0])
-        print("Threshold: ", "{:e}".format(thresh_for_quench))
-        print("Calculated Quench Amplitude: ", np.exp(ln_A0))
-        print("Calculated Loaded Q: ", "{:e}\n".format(loaded_q))
-        
-        return loaded_q < thresh_for_quench
+        try:
+            exponential_term, ln_A0 = np.polyfit(time_data, np.log(fault_data), 1)
+            loaded_q = (-np.pi * self.frequency) / exponential_term
+            
+            thresh_for_quench = LOADED_Q_CHANGE_FOR_QUENCH * saved_loaded_q
+            print(f"\nCM{self.cryomodule.name}", f"Cavity {self.number}")
+            print("Saved Loaded Q: ", "{:e}".format(saved_loaded_q))
+            print("Last recorded amplitude: ", fault_data[0])
+            print("Threshold: ", "{:e}".format(thresh_for_quench))
+            print("Calculated Quench Amplitude: ", np.exp(ln_A0))
+            print("Calculated Loaded Q: ", "{:e}\n".format(loaded_q))
+            
+            return loaded_q < thresh_for_quench
+        except np.linalg.LinAlgError as e:
+            print(e)
+            return None
 
 
 QUENCH_CRYOMODULES = scLinac.CryoDict(cavityClass=QuenchCavity)
