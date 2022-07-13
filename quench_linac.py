@@ -4,7 +4,7 @@ import numpy as np
 from epics import PV, caget
 from lcls_tools.superconducting import scLinac
 
-LOADED_Q_CHANGE_FOR_QUENCH = 0.9
+LOADED_Q_CHANGE_FOR_QUENCH = 0.6
 
 
 class QuenchCavity(scLinac.Cavity):
