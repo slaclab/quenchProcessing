@@ -66,7 +66,7 @@ class QuenchCavity(scLinac.Cavity):
         print("Last recorded amplitude: ", fault_data[0])
         print("Threshold: ", "{:e}".format(thresh_for_quench))
         print("Calculated Quench Amplitude: ", np.exp(ln_A0))
-        print("Calculated Loaded Q: \n", "{:e}".format(loaded_q))
+        print("Calculated Loaded Q: ", "{:e}\n".format(loaded_q))
         
         return loaded_q < thresh_for_quench
 

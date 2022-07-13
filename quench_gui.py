@@ -80,6 +80,8 @@ class QuenchGUI(Display):
             self.ui.valid_label.setText("Real")
         else:
             self.ui.valid_label.setText("Not Real")
+            if self.ui.auto_reset_checkbox.isChecked():
+                self.current_cav.reset_interlocks()
     
     def ui_filename(self):
         return "quench_gui.ui"
