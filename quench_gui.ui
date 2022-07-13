@@ -46,6 +46,15 @@
         <property name="toolTip">
          <string/>
         </property>
+        <property name="decimals">
+         <number>2</number>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="showUnits" stdset="0">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="2">
@@ -86,6 +95,9 @@
        <widget class="PyDMLabel" name="ades_readback_label">
         <property name="toolTip">
          <string/>
+        </property>
+        <property name="showUnits" stdset="0">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -437,11 +449,18 @@
           <property name="accessibleName">
            <string>${magnetType}</string>
           </property>
-          <property name="offColor" stdset="0">
+          <property name="onColor" stdset="0">
            <color>
             <red>252</red>
             <green>1</green>
             <blue>7</blue>
+           </color>
+          </property>
+          <property name="offColor" stdset="0">
+           <color>
+            <red>0</red>
+            <green>255</green>
+            <blue>0</blue>
            </color>
           </property>
           <property name="showLabels" stdset="0">

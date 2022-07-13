@@ -31,8 +31,12 @@ class QuenchGUI(Display):
         
         self.ui.cm_combobox.currentIndexChanged.connect(self.update_cm)
         self.ui.cav_combobox.currentIndexChanged.connect(self.update_cm)
+        
+        self.quench_callback()
     
     def update_cm(self):
+        self.current_cav.quench_latch_pv_obj.clear_callbacks()
+        
         self.current_cm: Cryomodule = QUENCH_CRYOMODULES[self.ui.cm_combobox.currentText()]
         self.current_cav: QuenchCavity = self.current_cm.cavities[int(self.ui.cav_combobox.currentText())]
         
@@ -68,6 +72,14 @@ class QuenchGUI(Display):
                                                               self.current_cav.decay_ref_pv),
                                                              (self.current_cav.cav_time_waveform_pv,
                                                               self.current_cav.fault_waveform_pv)])
+        
+        self.current_cav.quench_latch_pv_obj.add_callback(self.quench_callback)
+    
+    def quench_callback(self):
+        if self.current_cav.validate_quench():
+            self.ui.valid_label.setText("Real")
+        else:
+            self.ui.valid_label.setText("Not Real")
     
     def ui_filename(self):
         return "quench_gui.ui"
