@@ -52,7 +52,7 @@ class QuenchCavity(scLinac.Cavity):
             
             # Find where the amplitude decays to 1/e
             for end_decay, amp in enumerate(fault_data):
-                if end_decay <= 1 / np.exp(1):
+                if amp <= 1 / np.exp(1):
                     break
             
             fault_data = fault_data[:end_decay]
