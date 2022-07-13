@@ -266,8 +266,17 @@
      <property name="toolTip">
       <string/>
      </property>
+     <property name="showXGrid">
+      <bool>true</bool>
+     </property>
+     <property name="showYGrid">
+      <bool>true</bool>
+     </property>
      <property name="title" stdset="0">
       <string>Fault Waveform</string>
+     </property>
+     <property name="showLegend">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -327,8 +336,17 @@
      <property name="toolTip">
       <string/>
      </property>
+     <property name="showXGrid">
+      <bool>true</bool>
+     </property>
+     <property name="showYGrid">
+      <bool>true</bool>
+     </property>
      <property name="title" stdset="0">
       <string>Amplitude &amp; Radiation</string>
+     </property>
+     <property name="showLegend">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
