@@ -45,8 +45,12 @@ class QuenchCavity(scLinac.Cavity):
         
         exponential_term = np.polyfit(time_data, np.log(fault_data), 1)[0]
         loaded_q = (-np.pi * self.frequency) / exponential_term
-        
-        return loaded_q < LOADED_Q_CHANGE_FOR_QUENCH * caget(self.currentQLoadedPV.pvname)
+        saved_loaded_q = caget(self.currentQLoadedPV.pvname)
+        thresh_for_quench = LOADED_Q_CHANGE_FOR_QUENCH * saved_loaded_q
+        print(f"Calculated Loaded Q: {loaded_q}")
+        print(f"Saved Loaded Q: {saved_loaded_q}")
+        print(f"Threshold: {thresh_for_quench}")
+        return loaded_q < thresh_for_quench
 
 
 QUENCH_CRYOMODULES = scLinac.CryoDict(cavityClass=QuenchCavity)
