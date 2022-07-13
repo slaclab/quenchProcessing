@@ -17,6 +17,7 @@ class QuenchCavity(scLinac.Cavity):
         self.fault_waveform_pv = self.pvPrefix + "CAV:FLTAWF"
         self.decay_ref_pv = self.pvPrefix + "DECAYREFWF"
         self.cav_time_waveform_pv = self.pvPrefix + "CAV:FLTTWF"
+        self.srf_max_pv = self.pvPrefix + "ADES_MAX_SRF"
         self.quench_latch_pv_obj = PV(self.quench_latch_pv)
         self.pre_quench_amp = None
     
@@ -47,15 +48,15 @@ class QuenchCavity(scLinac.Cavity):
         fault_data = fault_data[time_0:]
         time_data = time_data[time_0:]
         
-        time_30ms = len(time_data) - 1
+        time_end = len(time_data) - 1
         
         # Only look at the first 30ms (This helps the fit for some reason)
-        for time_30ms, time in enumerate(time_data):
-            if time >= 30e-3:
+        for time_end, time in enumerate(time_data):
+            if time >= 0.05:
                 break
         
-        fault_data = fault_data[:time_30ms]
-        time_data = time_data[:time_30ms]
+        fault_data = fault_data[:time_end]
+        time_data = time_data[:time_end]
         
         saved_loaded_q = caget(self.currentQLoadedPV.pvname)
         self.pre_quench_amp = fault_data[0]
@@ -69,7 +70,6 @@ class QuenchCavity(scLinac.Cavity):
             print("Saved Loaded Q: ", "{:e}".format(saved_loaded_q))
             print("Last recorded amplitude: ", fault_data[0])
             print("Threshold: ", "{:e}".format(thresh_for_quench))
-            # print("Calculated Quench Amplitude: ", np.exp(ln_A0))
             print("Calculated Loaded Q: ", "{:e}\n".format(loaded_q))
             
             is_real = loaded_q < thresh_for_quench
