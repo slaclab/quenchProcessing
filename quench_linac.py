@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import numpy as np
 from epics import PV, caget
 from lcls_tools.superconducting import scLinac
@@ -44,15 +46,15 @@ class QuenchCavity(scLinac.Cavity):
         fault_data = fault_data[time_0:]
         time_data = time_data[time_0:]
         
-        time_50ms = len(time_data) - 1
+        time_30ms = len(time_data) - 1
         
-        # Only look at the first 50ms (This helps the fit for some reason)
-        for time_50ms, time in enumerate(time_data):
-            if time >= 50e-3:
+        # Only look at the first 30ms (This helps the fit for some reason)
+        for time_30ms, time in enumerate(time_data):
+            if time >= 30e-3:
                 break
         
-        fault_data = fault_data[:time_50ms]
-        time_data = time_data[:time_50ms]
+        fault_data = fault_data[:time_30ms]
+        time_data = time_data[:time_30ms]
         
         saved_loaded_q = caget(self.currentQLoadedPV.pvname)
         self.pre_quench_amp = fault_data[0]
@@ -62,14 +64,17 @@ class QuenchCavity(scLinac.Cavity):
             loaded_q = (-np.pi * self.frequency) / exponential_term
             
             thresh_for_quench = LOADED_Q_CHANGE_FOR_QUENCH * saved_loaded_q
-            print(f"\nCM{self.cryomodule.name}", f"Cavity {self.number}")
+            print(f"\nCM{self.cryomodule.name}", f"Cavity {self.number}", datetime.now())
             print("Saved Loaded Q: ", "{:e}".format(saved_loaded_q))
             print("Last recorded amplitude: ", fault_data[0])
             print("Threshold: ", "{:e}".format(thresh_for_quench))
             print("Calculated Quench Amplitude: ", np.exp(ln_A0))
             print("Calculated Loaded Q: ", "{:e}\n".format(loaded_q))
             
-            return loaded_q < thresh_for_quench
+            is_real = loaded_q < thresh_for_quench
+            print("Validation: ", is_real)
+            
+            return is_real
         except np.linalg.LinAlgError as e:
             print(e)
             return None
