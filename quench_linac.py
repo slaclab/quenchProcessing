@@ -52,7 +52,7 @@ class QuenchCavity(scLinac.Cavity):
         
         # Only look at the first 30ms (This helps the fit for some reason)
         for time_end, time in enumerate(time_data):
-            if time >= 0.05:
+            if time >= 0.001:
                 break
         
         fault_data = fault_data[:time_end]
