@@ -30,6 +30,7 @@ class QuenchCavity(scLinac.Cavity):
 
         ln(A(t)) = ln(A0) + ln(e ^ ((-pi * cav_freq * t)/loaded_Q)) = ln(A0) - ((pi * cav_freq * t)/loaded_Q)
         polyfit(t, ln(A(t)), 1) = [-((pi * cav_freq)/loaded_Q), ln(A0)]
+        polyfit(t, ln(A0/A(t)), 1) = [(pi * f * t)/Ql]
 
         https://education.molssi.org/python-data-analysis/03-data-fitting/index.html
         :return:
@@ -60,15 +61,15 @@ class QuenchCavity(scLinac.Cavity):
         self.pre_quench_amp = fault_data[0]
         
         try:
-            exponential_term, ln_A0 = np.polyfit(time_data, np.log(fault_data), 1)
-            loaded_q = (-np.pi * self.frequency) / exponential_term
+            exponential_term = np.polyfit(time_data, np.log(self.pre_quench_amp / fault_data), 1)[0]
+            loaded_q = (np.pi * self.frequency) / exponential_term
             
             thresh_for_quench = LOADED_Q_CHANGE_FOR_QUENCH * saved_loaded_q
             print(f"\nCM{self.cryomodule.name}", f"Cavity {self.number}", datetime.now())
             print("Saved Loaded Q: ", "{:e}".format(saved_loaded_q))
             print("Last recorded amplitude: ", fault_data[0])
             print("Threshold: ", "{:e}".format(thresh_for_quench))
-            print("Calculated Quench Amplitude: ", np.exp(ln_A0))
+            # print("Calculated Quench Amplitude: ", np.exp(ln_A0))
             print("Calculated Loaded Q: ", "{:e}\n".format(loaded_q))
             
             is_real = loaded_q < thresh_for_quench
