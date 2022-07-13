@@ -35,7 +35,8 @@ class QuenchGUI(Display):
         self.quench_callback()
     
     def update_cm(self):
-        self.current_cav.quench_latch_pv_obj.clear_callbacks()
+        if self.current_cav:
+            self.current_cav.quench_latch_pv_obj.clear_callbacks()
         
         self.current_cm: Cryomodule = QUENCH_CRYOMODULES[self.ui.cm_combobox.currentText()]
         self.current_cav: QuenchCavity = self.current_cm.cavities[int(self.ui.cav_combobox.currentText())]
