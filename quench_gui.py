@@ -101,24 +101,15 @@ class QuenchGUI(Display):
         cavity = self.current_cav
         fault_data = caget(cavity.fault_waveform_pv)
         time_data = caget(cavity.cav_time_waveform_pv)
-        time_0 = 0
+        idx = 0
         
         # Look for time 0 (quench). These waveforms capture data beforehand
-        for time_0, time in enumerate(time_data):
+        for idx, time in enumerate(time_data):
             if time >= 0:
                 break
         
-        fault_data = fault_data[time_0:]
-        time_data = time_data[time_0:]
-        
-        time_50ms = len(time_data) - 1
-        
-        for time_50ms, time in enumerate(time_data):
-            if time >= 50e-3:
-                break
-        
-        fault_data = fault_data[:time_50ms]
-        time_data = time_data[:time_50ms]
+        fault_data = fault_data[idx:]
+        time_data = time_data[idx:]
         
         saved_loaded_q = caget(cavity.currentQLoadedPV.pvname)
         cavity.pre_quench_amp = fault_data[0]
