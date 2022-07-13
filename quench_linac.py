@@ -44,23 +44,29 @@ class QuenchCavity(scLinac.Cavity):
             for time_0, time in enumerate(time_data):
                 if time >= 0:
                     break
-            
-            fault_data = fault_data[time_0:]
-            time_data = time_data[time_0:]
-            
-            end_decay = len(fault_data) - 1
-            
-            # Find where the amplitude decays to "zero"
-            for end_decay, amp in enumerate(fault_data):
-                if amp < 0.002:
-                    break
-            
-            fault_data = fault_data[:end_decay]
-            time_data = time_data[:end_decay]
-            
-            saved_loaded_q = caget(self.currentQLoadedPV.pvname)
-            self.pre_quench_amp = fault_data[0]
+        
         except TypeError as e:
+            print(e)
+            return None
+        
+        fault_data = fault_data[time_0:]
+        time_data = time_data[time_0:]
+        
+        end_decay = len(fault_data) - 1
+        
+        # Find where the amplitude decays to "zero"
+        for end_decay, amp in enumerate(fault_data):
+            if amp < 0.002:
+                break
+        
+        fault_data = fault_data[:end_decay]
+        time_data = time_data[:end_decay]
+        
+        saved_loaded_q = caget(self.currentQLoadedPV.pvname)
+        
+        try:
+            self.pre_quench_amp = fault_data[0]
+        except IndexError as e:
             print(e)
             return None
         
