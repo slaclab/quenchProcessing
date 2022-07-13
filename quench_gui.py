@@ -77,7 +77,9 @@ class QuenchGUI(Display):
         self.current_cav.quench_latch_pv_obj.add_callback(self.quench_callback)
         self.quench_callback()
     
-    def quench_callback(self, **kwargs):
+    def quench_callback(self, value, **kwargs):
+        if value == 0:
+            return
         is_real = self.current_cav.validate_quench()
         if is_real is None:
             self.ui.valid_label.setText("Unknown")

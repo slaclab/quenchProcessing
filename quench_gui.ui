@@ -208,6 +208,15 @@
         <property name="toolTip">
          <string/>
         </property>
+        <property name="decimals">
+         <number>2</number>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="showUnits" stdset="0">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>
