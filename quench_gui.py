@@ -1,10 +1,13 @@
 from typing import Dict
 
+import numpy as np
+from epics import caget
 from lcls_tools.common.pydm_tools import pydmPlotUtil
 from lcls_tools.superconducting.scLinac import ALL_CRYOMODULES, Cryomodule
 from pydm import Display
+from scipy.optimize import curve_fit
 
-from quench_linac import QUENCH_CRYOMODULES, QuenchCavity
+from quench_linac import LOADED_Q_CHANGE_FOR_QUENCH, QUENCH_CRYOMODULES, QuenchCavity
 
 
 class QuenchGUI(Display):
@@ -76,10 +79,61 @@ class QuenchGUI(Display):
         self.quench_callback()
     
     def quench_callback(self):
-        if self.current_cav.validate_quench():
+        if self.validate_quench():
             self.ui.valid_label.setText("Real")
         else:
             self.ui.valid_label.setText("Not Real")
+    
+    def validate_quench(self):
+        """
+        Parsing the fault waveforms to calculate the loaded Q to try to determine
+        if a quench was real.
+
+        DERIVATION NOTES
+        A(t) = A0 * e^((-2 * pi * cav_freq * t)/(2 * loaded_Q)) = A0 * e ^ ((-pi * cav_freq * t)/loaded_Q)
+
+        ln(A(t)) = ln(A0) + ln(e ^ ((-pi * cav_freq * t)/loaded_Q)) = ln(A0) - ((pi * cav_freq * t)/loaded_Q)
+        polyfit(t, ln(A(t)), 1) = [-((pi * cav_freq)/loaded_Q), ln(A0)]
+
+        https://education.molssi.org/python-data-analysis/03-data-fitting/index.html
+        :return:
+        """
+        cavity = self.current_cav
+        fault_data = caget(cavity.fault_waveform_pv)
+        time_data = caget(cavity.cav_time_waveform_pv)
+        idx = 0
+        
+        # Look for time 0 (quench). These waveforms capture data beforehand
+        for idx, time in enumerate(time_data):
+            if time >= 0:
+                break
+        
+        fault_data = fault_data[idx:]
+        time_data = time_data[idx:]
+        
+        saved_loaded_q = caget(cavity.currentQLoadedPV.pvname)
+        cavity.pre_quench_amp = fault_data[0]
+        
+        parameters, covariance = curve_fit(cavity.expected_trace, time_data, fault_data)
+        
+        q_loaded = parameters[0]
+        
+        exponential_term, ln_A0 = np.polyfit(time_data, np.log(fault_data), 1)
+        loaded_q = (-np.pi * cavity.frequency) / exponential_term
+        
+        thresh_for_quench = LOADED_Q_CHANGE_FOR_QUENCH * saved_loaded_q
+        print(f"\nCM{cavity.cryomodule.name}", f"Cavity {cavity.number}")
+        print("Saved Loaded Q: ", "{:e}".format(saved_loaded_q))
+        print("Last recorded amplitude: ", fault_data[0])
+        print("Threshold: ", "{:e}\n".format(thresh_for_quench))
+        
+        print("Polyfit")
+        print("Calculated Quench Amplitude: ", np.exp(ln_A0))
+        print("Calculated Loaded Q: ", "{:e}".format(loaded_q))
+        
+        print("Curvefit")
+        print("Calculated Loaded Q: ", "{:e}".format(q_loaded))
+        return loaded_q < thresh_for_quench
     
     def ui_filename(self):
         return "quench_gui.ui"
