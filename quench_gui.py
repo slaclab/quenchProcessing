@@ -4,11 +4,14 @@ from epics import camonitor, camonitor_clear
 from lcls_tools.common.pydm_tools import pydmPlotUtil
 from lcls_tools.superconducting.scLinac import ALL_CRYOMODULES, Cryomodule
 from pydm import Display
+from qtpy.QtCore import Signal, Slot
 
 from quench_linac import QUENCH_CRYOMODULES, QuenchCavity
 
 
 class QuenchGUI(Display):
+    quench_signal = Signal(int)
+    
     def __init__(self, parent=None, args=None):
         super().__init__(parent=parent, args=args)
         
@@ -32,6 +35,7 @@ class QuenchGUI(Display):
         
         self.ui.cm_combobox.currentIndexChanged.connect(self.update_cm)
         self.ui.cav_combobox.currentIndexChanged.connect(self.update_cm)
+        self.quench_signal.connect(self.quench_slot)
     
     def update_cm(self):
         if self.current_cav:
@@ -78,7 +82,10 @@ class QuenchGUI(Display):
         camonitor(self.current_cav.quench_latch_pv,
                   callback=self.quench_callback, writer=print)
     
-    def quench_callback(self, **kwargs):
+    @Slot(int)
+    def quench_slot(self, value: int):
+        if value == 0:
+            return
         is_real = self.current_cav.validate_quench()
         if is_real is None:
             self.ui.valid_label.setText("Unknown")
@@ -88,6 +95,9 @@ class QuenchGUI(Display):
             self.ui.valid_label.setText("Not Real")
             if self.ui.auto_reset_checkbox.isChecked():
                 self.current_cav.reset_interlocks()
+    
+    def quench_callback(self, value, **kwargs):
+        self.quench_signal.emit(value)
     
     def ui_filename(self):
         return "quench_gui.ui"
