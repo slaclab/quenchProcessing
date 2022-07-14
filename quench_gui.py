@@ -1,5 +1,6 @@
 from typing import Dict
 
+from epics import caget
 from lcls_tools.common.pydm_tools import pydmPlotUtil
 from lcls_tools.superconducting.scLinac import ALL_CRYOMODULES, Cryomodule
 from pydm import Display
@@ -75,7 +76,7 @@ class QuenchGUI(Display):
                                                               self.current_cav.fault_waveform_pv)])
         
         self.current_cav.quench_latch_pv_obj.add_callback(self.quench_callback)
-        self.quench_callback()
+        self.quench_callback(caget(self.current_cav.quench_latch_pv))
     
     def quench_callback(self, value, **kwargs):
         if value == 0:
