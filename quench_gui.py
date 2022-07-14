@@ -79,6 +79,7 @@ class QuenchGUI(Display):
     
     def quench_callback(self, value, **kwargs):
         if value == 0:
+            self.ui.valid_label.setText("")
             return
         is_real = self.current_cav.validate_quench()
         if is_real is None:
