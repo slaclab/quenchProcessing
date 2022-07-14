@@ -51,6 +51,8 @@ class QuenchGUI(Display):
         self.ui.ades_spinbox.channel = self.current_cav.selAmplitudeDesPV.pvname
         self.ui.ades_readback_label.channel = self.current_cav.selAmplitudeActPV.pvname
         self.ui.setup_button.clicked.connect(self.current_cav.setup_SELA)
+        self.ui.srf_max_spinbox.channel = self.current_cav.srf_max_pv
+        self.ui.srf_max_label.channel = self.current_cav.srf_max_pv
         
         self.ui.cav_power_label.channel = self.current_cav.cav_power_pv
         self.ui.forward_power_label.channel = self.current_cav.forward_power_pv
@@ -73,9 +75,8 @@ class QuenchGUI(Display):
                                                               self.current_cav.fault_waveform_pv)])
         
         self.current_cav.quench_latch_pv_obj.add_callback(self.quench_callback)
-        self.quench_callback()
     
-    def quench_callback(self):
+    def quench_callback(self, **kwargs):
         is_real = self.current_cav.validate_quench()
         if is_real is None:
             self.ui.valid_label.setText("Unknown")

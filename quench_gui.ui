@@ -20,13 +20,6 @@
       <string>RF controls</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_12">
-        <property name="text">
-         <string>SSA Power:</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="3">
        <widget class="PyDMLabel" name="label_ssa_status_rdbk">
         <property name="toolTip">
@@ -34,10 +27,37 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_3">
+      <item row="2" column="3">
+       <widget class="PyDMLabel" name="label_rfstatus_rdbk">
+        <property name="toolTip">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="PyDMPushButton" name="button_ssa_on">
+        <property name="toolTip">
+         <string/>
+        </property>
         <property name="text">
-         <string>ADES:</string>
+         <string>On</string>
+        </property>
+        <property name="pressValue" stdset="0">
+         <string>1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_14">
+        <property name="text">
+         <string>RF Power:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_13">
+        <property name="text">
+         <string>RF Mode:</string>
         </property>
        </widget>
       </item>
@@ -54,63 +74,6 @@
         </property>
         <property name="showUnits" stdset="0">
          <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="PyDMPushButton" name="button_ssa_off">
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="text">
-         <string>Off</string>
-        </property>
-        <property name="pressValue" stdset="0">
-         <string>1</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_14">
-        <property name="text">
-         <string>RF Power:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="PyDMLabel" name="label_rfmode_rdbk">
-        <property name="toolTip">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_13">
-        <property name="text">
-         <string>RF Mode:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="3">
-       <widget class="PyDMLabel" name="ades_readback_label">
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="showUnits" stdset="0">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="PyDMPushButton" name="button_ssa_on">
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="text">
-         <string>On</string>
-        </property>
-        <property name="pressValue" stdset="0">
-         <string>1</string>
         </property>
        </widget>
       </item>
@@ -146,6 +109,46 @@
         </item>
        </widget>
       </item>
+      <item row="5" column="0" colspan="4">
+       <widget class="QPushButton" name="setup_button">
+        <property name="toolTip">
+         <string>Will characterize and ramp to AMAX</string>
+        </property>
+        <property name="text">
+         <string>Set Up for Processing</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="PyDMPushButton" name="button_ssa_off">
+        <property name="toolTip">
+         <string/>
+        </property>
+        <property name="text">
+         <string>Off</string>
+        </property>
+        <property name="pressValue" stdset="0">
+         <string>1</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="3">
+       <widget class="PyDMLabel" name="ades_readback_label">
+        <property name="toolTip">
+         <string/>
+        </property>
+        <property name="showUnits" stdset="0">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>ADES:</string>
+        </property>
+       </widget>
+      </item>
       <item row="2" column="2">
        <widget class="PyDMPushButton" name="button_rf_off">
         <property name="toolTip">
@@ -159,8 +162,15 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="3">
-       <widget class="PyDMLabel" name="label_rfstatus_rdbk">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string>SSA Power:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="PyDMLabel" name="label_rfmode_rdbk">
         <property name="toolTip">
          <string/>
         </property>
@@ -179,13 +189,33 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="4">
-       <widget class="QPushButton" name="setup_button">
-        <property name="toolTip">
-         <string>Will characterize and ramp to AMAX</string>
-        </property>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_11">
         <property name="text">
-         <string>Set Up for Processing</string>
+         <string>SRF Max:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="PyDMLabel" name="srf_max_label">
+        <property name="toolTip">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1" colspan="2">
+       <widget class="PyDMSpinbox" name="srf_max_spinbox">
+        <property name="toolTip">
+         <string/>
+        </property>
+        <property name="decimals">
+         <number>2</number>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="showUnits" stdset="0">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
