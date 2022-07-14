@@ -1,5 +1,6 @@
 from typing import Dict
 
+from PyQt5.QtCore import Qt
 from epics import camonitor, camonitor_clear
 from lcls_tools.common.pydm_tools import pydmPlotUtil
 from lcls_tools.superconducting.scLinac import ALL_CRYOMODULES, Cryomodule
@@ -35,7 +36,7 @@ class QuenchGUI(Display):
         
         self.ui.cm_combobox.currentIndexChanged.connect(self.update_cm)
         self.ui.cav_combobox.currentIndexChanged.connect(self.update_cm)
-        self.quench_signal.connect(self.quench_slot)
+        self.quench_signal.connect(self.quench_slot, Qt.QueuedConnection)
     
     def update_cm(self):
         if self.current_cav:
