@@ -94,8 +94,11 @@ class QuenchGUI(Display):
             self.ui.valid_label.setText("Real")
         else:
             self.ui.valid_label.setText("Not Real")
-            if self.ui.auto_reset_checkbox.isChecked():
+            if self.ui.auto_reset_fake_checkbox.isChecked():
                 self.current_cav.reset_interlocks()
+        
+        if self.ui.auto_reset_all_checkbox.isChecked():
+            self.current_cav.reset_interlocks()
     
     def quench_callback(self, value, **kwargs):
         self.quench_signal.emit(value)
