@@ -1,3 +1,4 @@
+from functools import partial
 from typing import Dict
 
 from PyQt5.QtCore import Qt
@@ -90,7 +91,7 @@ class QuenchGUI(Display):
         self.ui.bypass_indicator.channel = self.current_cav.quench_bypass_pv + "_RBV"
         self.ui.bypass_label.channel = self.current_cav.quench_bypass_pv + "_RBV"
         
-        self.ui.reset_button.clicked.connect(self.current_cav.reset_interlocks)
+        self.ui.reset_button.clicked.connect(partial(self.current_cav.reset_interlocks, True))
         
         self.timeplot_updater.updatePlot("LIVE_SIGNALS", [(self.current_cav.selAmplitudeActPV.pvname, None)])
         self.waveform_updater.updatePlot("FAULT_WAVEFORMS", [(self.current_cav.cav_time_waveform_pv,
@@ -103,7 +104,7 @@ class QuenchGUI(Display):
     
     @Slot(int)
     def quench_slot(self, value: int):
-        is_real = self.current_cav.validate_quench()
+        is_real = self.current_cav.validate_quench(wait_for_update=True)
         if is_real is None:
             self.ui.valid_label.setText("Unknown")
         elif is_real:
@@ -111,10 +112,10 @@ class QuenchGUI(Display):
         else:
             self.ui.valid_label.setText("Not Real")
             if self.ui.auto_reset_fake_checkbox.isChecked():
-                self.current_cav.reset_interlocks()
+                self.current_cav.reset_interlocks(True)
         
         if self.ui.auto_reset_all_checkbox.isChecked():
-            self.current_cav.reset_interlocks()
+            self.current_cav.reset_interlocks(True)
     
     def quench_callback(self, value, **kwargs):
         self.quench_signal.emit(value)
