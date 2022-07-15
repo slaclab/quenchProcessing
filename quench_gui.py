@@ -38,9 +38,27 @@ class QuenchGUI(Display):
         self.ui.cav_combobox.currentIndexChanged.connect(self.update_cm)
         self.quench_signal.connect(self.quench_slot, Qt.QueuedConnection)
     
+    def clear_connections(self, signal: Signal):
+        try:
+            signal.disconnect()
+        except TypeError:
+            print(f"No connections to remove for {signal}")
+            pass
+    
+    def clear_all_connections(self):
+        for signal in [self.ui.button_ssa_on.clicked,
+                       self.ui.button_ssa_off.clicked,
+                       self.ui.button_rf_on.clicked,
+                       self.ui.button_rf_off.clicked,
+                       self.ui.setup_button.clicked,
+                       self.ui.reset_button.clicked]:
+            self.clear_connections(signal)
+    
     def update_cm(self):
         if self.current_cav:
             camonitor_clear(self.current_cav.quench_latch_pv)
+        
+        self.clear_all_connections()
         
         self.current_cm: Cryomodule = QUENCH_CRYOMODULES[self.ui.cm_combobox.currentText()]
         self.current_cav: QuenchCavity = self.current_cm.cavities[int(self.ui.cav_combobox.currentText())]
@@ -85,8 +103,6 @@ class QuenchGUI(Display):
     
     @Slot(int)
     def quench_slot(self, value: int):
-        if value == 0:
-            return
         is_real = self.current_cav.validate_quench()
         if is_real is None:
             self.ui.valid_label.setText("Unknown")
