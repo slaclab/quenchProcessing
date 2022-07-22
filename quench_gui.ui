@@ -75,6 +75,9 @@
         <property name="showUnits" stdset="0">
          <bool>true</bool>
         </property>
+        <property name="showStepExponent" stdset="0">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="1" column="1" colspan="2">
@@ -216,6 +219,9 @@
         </property>
         <property name="showUnits" stdset="0">
          <bool>true</bool>
+        </property>
+        <property name="showStepExponent" stdset="0">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -519,27 +525,6 @@
         </item>
        </layout>
       </item>
-      <item row="3" column="1">
-       <widget class="QLabel" name="valid_label">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_8">
-        <property name="text">
-         <string>Validation Status:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0" colspan="2">
-       <widget class="QCheckBox" name="auto_reset_checkbox">
-        <property name="text">
-         <string>Auto Reset Fake Quenches</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="0">
        <widget class="PyDMPushButton" name="bypass_button">
         <property name="toolTip">
@@ -629,6 +614,34 @@
         </property>
         <property name="writeWhenRelease" stdset="0">
          <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="valid_label">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Validation Status:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="2">
+       <widget class="QCheckBox" name="auto_reset_fake_checkbox">
+        <property name="text">
+         <string>Auto Reset Fake Quenches</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0" colspan="2">
+       <widget class="QCheckBox" name="auto_reset_all_checkbox">
+        <property name="text">
+         <string>Auto Reset All Quenches</string>
         </property>
        </widget>
       </item>

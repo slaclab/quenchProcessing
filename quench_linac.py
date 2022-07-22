@@ -1,7 +1,8 @@
 from datetime import datetime
+from time import sleep
 
 import numpy as np
-from epics import PV, caget
+from epics import caget
 from lcls_tools.superconducting import scLinac
 
 LOADED_Q_CHANGE_FOR_QUENCH = 0.6
@@ -18,10 +19,9 @@ class QuenchCavity(scLinac.Cavity):
         self.decay_ref_pv = self.pvPrefix + "DECAYREFWF"
         self.cav_time_waveform_pv = self.pvPrefix + "CAV:FLTTWF"
         self.srf_max_pv = self.pvPrefix + "ADES_MAX_SRF"
-        self.quench_latch_pv_obj = PV(self.quench_latch_pv)
         self.pre_quench_amp = None
     
-    def validate_quench(self):
+    def validate_quench(self, wait_for_update: bool = False):
         """
         Parsing the fault waveforms to calculate the loaded Q to try to determine
         if a quench was real.
@@ -34,10 +34,17 @@ class QuenchCavity(scLinac.Cavity):
         polyfit(t, ln(A0/A(t)), 1) = [(pi * f * t)/Ql]
 
         https://education.molssi.org/python-data-analysis/03-data-fitting/index.html
+        
+        :param wait_for_update: bool
         :return:
         """
-        fault_data = caget(self.fault_waveform_pv)
-        time_data = caget(self.cav_time_waveform_pv)
+        
+        if wait_for_update:
+            print("Waiting 1s to give waveforms a chance to update")
+            sleep(1)
+        
+        time_data = caget(self.cav_time_waveform_pv, timeout=1)
+        fault_data = caget(self.fault_waveform_pv, timeout=1)
         time_0 = 0
         try:
             # Look for time 0 (quench). These waveforms capture data beforehand
