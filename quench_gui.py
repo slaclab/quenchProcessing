@@ -66,7 +66,7 @@ class QuenchGUI(Display):
         
         self.ui.button_ssa_on.clicked.connect(self.current_cav.ssa.turnOn)
         self.ui.button_ssa_off.clicked.connect(self.current_cav.ssa.turnOff)
-        self.ui.label_ssa_status_rdbk.channel = self.current_cav.ssa.statusPV.pvname
+        self.ui.label_ssa_status_rdbk.channel = self.current_cav.ssa.statusPV
         
         self.ui.combobox_rfmode.channel = self.current_cav.rfModeCtrlPV.pvname
         self.ui.label_rfmode_rdbk.channel = self.current_cav.rfModePV.pvname
