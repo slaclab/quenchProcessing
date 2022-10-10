@@ -2,7 +2,7 @@ from datetime import datetime
 from time import sleep
 
 import numpy as np
-from epics import caget
+from epics import PV, caget
 from lcls_tools.superconducting import scLinac
 
 LOADED_Q_CHANGE_FOR_QUENCH = 0.6
@@ -15,11 +15,23 @@ class QuenchCavity(scLinac.Cavity):
         self.cav_power_pv = self.pvPrefix + "CAV:PWRMEAN"
         self.forward_power_pv = self.pvPrefix + "FWD:PWRMEAN"
         self.reverse_power_pv = self.pvPrefix + "REV:PWRMEAN"
-        self.fault_waveform_pv = self.pvPrefix + "CAV:FLTAWF"
+        self._fault_waveform_pv: PV = None
         self.decay_ref_pv = self.pvPrefix + "DECAYREFWF"
-        self.cav_time_waveform_pv = self.pvPrefix + "CAV:FLTTWF"
+        self._cav_time_waveform_pv: PV = None
         self.srf_max_pv = self.pvPrefix + "ADES_MAX_SRF"
         self.pre_quench_amp = None
+    
+    @property
+    def fault_waveform_pv(self) -> PV:
+        if not self._fault_waveform_pv:
+            self._fault_waveform_pv = PV(self.pvPrefix + "CAV:FLTAWF")
+        return self._fault_waveform_pv
+    
+    @property
+    def cav_time_waveform_pv(self) -> PV:
+        if not self._cav_time_waveform_pv:
+            self._cav_time_waveform_pv = PV(self.pvPrefix + "CAV:FLTTWF")
+        return self._cav_time_waveform_pv
     
     def validate_quench(self, wait_for_update: bool = False):
         """
@@ -43,8 +55,8 @@ class QuenchCavity(scLinac.Cavity):
             print("Waiting 1s to give waveforms a chance to update")
             sleep(1)
         
-        time_data = caget(self.cav_time_waveform_pv, timeout=1)
-        fault_data = caget(self.fault_waveform_pv, timeout=1)
+        time_data = self.cav_time_waveform_pv.value
+        fault_data = self.fault_waveform_pv.value
         time_0 = 0
         try:
             # Look for time 0 (quench). These waveforms capture data beforehand
