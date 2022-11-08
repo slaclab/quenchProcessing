@@ -13,5 +13,5 @@ while True:
             if quench_cav.quench_latch_pv.value == 1:
                 is_real = quench_cav.validate_quench(wait_for_update=True)
                 if not is_real:
-                    quench_cav.reset_interlocks(wait=False)
+                    quench_cav.reset_interlocks(wait=False, retry=False)
     WATCHER_PV.put(WATCHER_PV.get() + 1)
