@@ -52,7 +52,7 @@ class QuenchCavity(scLinac.Cavity):
         """
         
         if wait_for_update:
-            print("Waiting 0.1s to give waveforms a chance to update")
+            print(f"Waiting 0.1s to give {self} waveforms a chance to update")
             sleep(0.1)
         
         time_data = self.cav_time_waveform_pv.value
