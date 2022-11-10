@@ -2,7 +2,7 @@ from datetime import datetime
 from time import sleep
 
 import numpy as np
-from epics import PV, caget
+from epics import PV
 from lcls_tools.superconducting import scLinac
 
 LOADED_Q_CHANGE_FOR_QUENCH = 0.6
@@ -77,7 +77,11 @@ class QuenchCavity(scLinac.Cavity):
         fault_data = fault_data[:end_decay]
         time_data = time_data[:end_decay]
         
-        saved_loaded_q = caget(self.currentQLoadedPV.pvname)
+        while not self.currentQLoadedPV.connect():
+            print(f"{self.currentQLoadedPV.pvname} not connected, retrying")
+            sleep(0.5)
+        
+        saved_loaded_q = self.currentQLoadedPV.get()
         
         self.pre_quench_amp = fault_data[0]
         
