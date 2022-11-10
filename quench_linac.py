@@ -58,15 +58,11 @@ class QuenchCavity(scLinac.Cavity):
         time_data = self.cav_time_waveform_pv.value
         fault_data = self.fault_waveform_pv.value
         time_0 = 0
-        try:
-            # Look for time 0 (quench). These waveforms capture data beforehand
-            for time_0, time in enumerate(time_data):
-                if time >= 0:
-                    break
         
-        except TypeError as e:
-            print(e)
-            return None
+        # Look for time 0 (quench). These waveforms capture data beforehand
+        for time_0, time in enumerate(time_data):
+            if time >= 0:
+                break
         
         fault_data = fault_data[time_0:]
         time_data = time_data[time_0:]
@@ -83,30 +79,22 @@ class QuenchCavity(scLinac.Cavity):
         
         saved_loaded_q = caget(self.currentQLoadedPV.pvname)
         
-        try:
-            self.pre_quench_amp = fault_data[0]
-        except IndexError as e:
-            print(e)
-            return None
+        self.pre_quench_amp = fault_data[0]
         
-        try:
-            exponential_term = np.polyfit(time_data, np.log(self.pre_quench_amp / fault_data), 1)[0]
-            loaded_q = (np.pi * self.frequency) / exponential_term
-            
-            thresh_for_quench = LOADED_Q_CHANGE_FOR_QUENCH * saved_loaded_q
-            print(f"\nCM{self.cryomodule.name}", f"Cavity {self.number}", datetime.now())
-            print("Saved Loaded Q: ", "{:e}".format(saved_loaded_q))
-            print("Last recorded amplitude: ", fault_data[0])
-            print("Threshold: ", "{:e}".format(thresh_for_quench))
-            print("Calculated Loaded Q: ", "{:e}\n".format(loaded_q))
-            
-            is_real = loaded_q < thresh_for_quench
-            print("Validation: ", is_real)
-            
-            return is_real
-        except np.linalg.LinAlgError as e:
-            print(e)
-            return None
+        exponential_term = np.polyfit(time_data, np.log(self.pre_quench_amp / fault_data), 1)[0]
+        loaded_q = (np.pi * self.frequency) / exponential_term
+        
+        thresh_for_quench = LOADED_Q_CHANGE_FOR_QUENCH * saved_loaded_q
+        print(f"\nCM{self.cryomodule.name}", f"Cavity {self.number}", datetime.now())
+        print("Saved Loaded Q: ", "{:e}".format(saved_loaded_q))
+        print("Last recorded amplitude: ", fault_data[0])
+        print("Threshold: ", "{:e}".format(thresh_for_quench))
+        print("Calculated Loaded Q: ", "{:e}\n".format(loaded_q))
+        
+        is_real = loaded_q < thresh_for_quench
+        print("Validation: ", is_real)
+        
+        return is_real
 
 
 QUENCH_CRYOMODULES = scLinac.CryoDict(cavityClass=QuenchCavity)
