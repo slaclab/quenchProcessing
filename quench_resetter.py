@@ -1,5 +1,6 @@
 from epics import PV
 from lcls_tools.superconducting.scLinac import ALL_CRYOMODULES
+from numpy.linalg import LinAlgError
 
 from quench_linac import QUENCH_CRYOMODULES
 
@@ -11,7 +12,10 @@ while True:
         quench_cm = QUENCH_CRYOMODULES[cryomoduleName]
         for quench_cav in quench_cm.cavities.values():
             if quench_cav.quench_latch_pv.value == 1:
-                is_real = quench_cav.validate_quench(wait_for_update=True)
-                if not is_real:
-                    quench_cav.reset_interlocks(wait=False, retry=False)
+                try:
+                    is_real = quench_cav.validate_quench(wait_for_update=True)
+                    if not is_real:
+                        quench_cav.reset_interlocks(wait=False, retry=False)
+                except(TypeError, LinAlgError, IndexError) as e:
+                    print(f"{quench_cav} error:", e)
     WATCHER_PV.put(WATCHER_PV.get() + 1)
