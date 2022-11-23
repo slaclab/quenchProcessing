@@ -20,6 +20,13 @@ class QuenchCavity(scLinac.Cavity):
         self._cav_time_waveform_pv: PV = None
         self.srf_max_pv = self.pvPrefix + "ADES_MAX_SRF"
         self.pre_quench_amp = None
+        self._quench_bypass_rbck_pv: PV = None
+    
+    @property
+    def quench_intlk_bypassed(self) -> bool:
+        if not self._quench_bypass_rbck_pv:
+            self._quench_bypass_rbck_pv = PV(self.pvPrefix + "QUENCH_BYP_RBV")
+        return self._quench_bypass_rbck_pv.get() == 1
     
     @property
     def fault_waveform_pv(self) -> PV:

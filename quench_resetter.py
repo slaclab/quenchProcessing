@@ -11,11 +11,19 @@ while True:
     for cryomoduleName in ALL_CRYOMODULES:
         quench_cm = QUENCH_CRYOMODULES[cryomoduleName]
         for quench_cav in quench_cm.cavities.values():
-            if quench_cav.quench_latch_pv.value == 1:
+            if quench_cav.quench_intlk_bypassed:
                 try:
-                    is_real = quench_cav.validate_quench(wait_for_update=True)
-                    if not is_real:
-                        quench_cav.reset_interlocks(wait=False, retry=False)
-                except(TypeError, LinAlgError, IndexError) as e:
-                    print(f"{quench_cav} error:", e)
+                    if quench_cav.selAmplitudeActPV.get() < 0.9 * quench_cav.selAmplitudeDesPV.get():
+                        print(f"{quench_cav} quench interlock bypassed and AACT < 0.9*ADES, turning off")
+                        quench_cav.setPowerState(turnOn=False, wait_time=0)
+                except TypeError as e:
+                    print(f"{quench_cav} error: {e}")
+            else:
+                if quench_cav.quench_latch_pv.value == 1:
+                    try:
+                        is_real = quench_cav.validate_quench(wait_for_update=True)
+                        if not is_real:
+                            quench_cav.reset_interlocks(wait=False, retry=False)
+                    except(TypeError, LinAlgError, IndexError) as e:
+                        print(f"{quench_cav} error:", e)
     WATCHER_PV.put(WATCHER_PV.get() + 1)
