@@ -2,7 +2,7 @@ from datetime import datetime
 from time import sleep
 
 import numpy as np
-from epics import PV
+from lcls_tools.common.pyepics_tools.pyepics_utils import PV
 from lcls_tools.superconducting import scLinac
 
 LOADED_Q_CHANGE_FOR_QUENCH = 0.6
@@ -12,32 +12,55 @@ class QuenchCavity(scLinac.Cavity):
     def __init__(self, cavityNum, rackObject, ssaClass=scLinac.SSA,
                  stepperClass=scLinac.StepperTuner, piezoClass=scLinac.Piezo):
         super().__init__(cavityNum, rackObject)
-        self.cav_power_pv = self.pvPrefix + "CAV:PWRMEAN"
-        self.forward_power_pv = self.pvPrefix + "FWD:PWRMEAN"
-        self.reverse_power_pv = self.pvPrefix + "REV:PWRMEAN"
+        self.cav_power_pv = self.pv_addr("CAV:PWRMEAN")
+        self.forward_power_pv = self.pv_addr("FWD:PWRMEAN")
+        self.reverse_power_pv = self.pv_addr("REV:PWRMEAN")
         self._fault_waveform_pv: PV = None
-        self.decay_ref_pv = self.pvPrefix + "DECAYREFWF"
+        self.decay_ref_pv = self.pv_addr("DECAYREFWF")
         self._cav_time_waveform_pv: PV = None
-        self.srf_max_pv = self.pvPrefix + "ADES_MAX_SRF"
+        self.srf_max_pv = self.pv_addr("ADES_MAX_SRF")
         self.pre_quench_amp = None
         self._quench_bypass_rbck_pv: PV = None
+        self._current_q_loaded_pv_obj: PV = None
+        
+    @property
+    def current_q_loaded_pv_obj(self):
+        if not self._current_q_loaded_pv_obj:
+            self._current_q_loaded_pv_obj = PV(self.current_q_loaded_pv)
+        return self._current_q_loaded_pv_obj
+        
+    @property
+    def hw_mode_pv_obj(self) -> PV:
+        if not self._hw_mode_pv_obj:
+            self._hw_mode_pv_obj = PV(self.hw_mode_pv)
+        return self._hw_mode_pv_obj
+    
+    @property
+    def hw_mode(self):
+        return self.hw_mode_pv_obj.get()
+    
+    @property
+    def quench_latch_pv_obj(self) -> PV:
+        if not self._quench_latch_pv_obj:
+            self._quench_latch_pv_obj = PV(self.quench_latch_pv)
+        return self._quench_latch_pv_obj
     
     @property
     def quench_intlk_bypassed(self) -> bool:
         if not self._quench_bypass_rbck_pv:
-            self._quench_bypass_rbck_pv = PV(self.pvPrefix + "QUENCH_BYP_RBV")
+            self._quench_bypass_rbck_pv = PV(self.pv_addr("QUENCH_BYP_RBV"))
         return self._quench_bypass_rbck_pv.get() == 1
     
     @property
     def fault_waveform_pv(self) -> PV:
         if not self._fault_waveform_pv:
-            self._fault_waveform_pv = PV(self.pvPrefix + "CAV:FLTAWF")
+            self._fault_waveform_pv = PV(self.pv_addr("CAV:FLTAWF"))
         return self._fault_waveform_pv
     
     @property
     def cav_time_waveform_pv(self) -> PV:
         if not self._cav_time_waveform_pv:
-            self._cav_time_waveform_pv = PV(self.pvPrefix + "CAV:FLTTWF")
+            self._cav_time_waveform_pv = PV(self.pv_addr("CAV:FLTTWF"))
         return self._cav_time_waveform_pv
     
     def validate_quench(self, wait_for_update: bool = False):
@@ -84,11 +107,7 @@ class QuenchCavity(scLinac.Cavity):
         fault_data = fault_data[:end_decay]
         time_data = time_data[:end_decay]
         
-        while not self.currentQLoadedPV.connect():
-            print(f"{self.currentQLoadedPV.pvname} not connected, retrying")
-            sleep(0.5)
-        
-        saved_loaded_q = self.currentQLoadedPV.get()
+        saved_loaded_q = self.current_q_loaded_pv_obj.get()
         
         self.pre_quench_amp = fault_data[0]
         
