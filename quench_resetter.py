@@ -1,7 +1,9 @@
 import logging
 
 from epics import PV
-from lcls_tools.superconducting.scLinac import ALL_CRYOMODULES, Cryomodule
+from lcls_tools.superconducting.scLinac import Cryomodule
+from lcls_tools.superconducting.sc_linac_utils import (ALL_CRYOMODULES,
+                                                       HW_MODE_ONLINE_VALUE)
 from numpy.linalg import LinAlgError
 
 from quench_linac import QUENCH_CRYOMODULES
@@ -19,8 +21,8 @@ while True:
     for cryomoduleName in ALL_CRYOMODULES:
         quench_cm: Cryomodule = QUENCH_CRYOMODULES[cryomoduleName]
         for quench_cav in quench_cm.cavities.values():
-            if quench_cav.hw_mode_pv.get() == 0:
-                if quench_cav.quench_latch_pv.value == 1:
+            if quench_cav.hw_mode == HW_MODE_ONLINE_VALUE:
+                if quench_cav.quench_latch_pv_obj.get() == 1:
                     try:
                         is_real = quench_cav.validate_quench(wait_for_update=True)
                         

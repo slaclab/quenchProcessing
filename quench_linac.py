@@ -21,6 +21,22 @@ class QuenchCavity(scLinac.Cavity):
         self.srf_max_pv = self.pvPrefix + "ADES_MAX_SRF"
         self.pre_quench_amp = None
         self._quench_bypass_rbck_pv: PV = None
+        
+    @property
+    def hw_mode_pv_obj(self) -> PV:
+        if not self._hw_mode_pv_obj:
+            self._hw_mode_pv_obj = PV(self.hw_mode_pv)
+        return self._hw_mode_pv_obj
+    
+    @property
+    def hw_mode(self):
+        return self.hw_mode_pv_obj.get()
+    
+    @property
+    def quench_latch_pv_obj(self) -> PV:
+        if not self._quench_latch_pv_obj:
+            self._quench_latch_pv_obj = PV(self.quench_latch_pv)
+        return self._quench_latch_pv_obj
     
     @property
     def quench_intlk_bypassed(self) -> bool:
