@@ -28,7 +28,7 @@ while True:
                         
                         if not is_real:
                             logger.info(f"{quench_cav} FAKE quench detected, resetting")
-                            quench_cav.reset_interlocks(wait=False, retry=False)
+                            quench_cav.reset_interlocks()
                         
                         else:
                             logger.warning(f"{quench_cav} REAL quench detected, not resetting")
