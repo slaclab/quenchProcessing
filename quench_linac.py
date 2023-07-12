@@ -1,8 +1,10 @@
+import logging
+import os
 from datetime import datetime
 from time import sleep
 
 import numpy as np
-from lcls_tools.common.pyepics_tools.pyepics_utils import PV
+from lcls_tools.common.pyepics_tools.pyepics_utils import EPICS_INVALID_VAL, PV
 from lcls_tools.superconducting import scLinac
 
 LOADED_Q_CHANGE_FOR_QUENCH = 0.6
@@ -22,13 +24,13 @@ class QuenchCavity(scLinac.Cavity):
         self.pre_quench_amp = None
         self._quench_bypass_rbck_pv: PV = None
         self._current_q_loaded_pv_obj: PV = None
-        
+    
     @property
     def current_q_loaded_pv_obj(self):
         if not self._current_q_loaded_pv_obj:
             self._current_q_loaded_pv_obj = PV(self.current_q_loaded_pv)
         return self._current_q_loaded_pv_obj
-        
+    
     @property
     def hw_mode_pv_obj(self) -> PV:
         if not self._hw_mode_pv_obj:
@@ -44,6 +46,10 @@ class QuenchCavity(scLinac.Cavity):
         if not self._quench_latch_pv_obj:
             self._quench_latch_pv_obj = PV(self.quench_latch_pv)
         return self._quench_latch_pv_obj
+    
+    @property
+    def quench_latch_invalid(self):
+        return self.quench_latch_pv_obj.severity == EPICS_INVALID_VAL
     
     @property
     def quench_intlk_bypassed(self) -> bool:
@@ -127,4 +133,20 @@ class QuenchCavity(scLinac.Cavity):
         return is_real
 
 
-QUENCH_CRYOMODULES = scLinac.CryoDict(cavityClass=QuenchCavity)
+class QuenchCryomodule(scLinac.Cryomodule):
+    def __init__(self, cryo_name, linac_object, cavity_class=QuenchCavity,
+                 magnet_class=scLinac.Magnet, rack_class=scLinac.Rack,
+                 is_harmonic_linearizer=False, ssa_class=scLinac.SSA,
+                 stepper_class=scLinac.StepperTuner, piezo_class=scLinac.Piezo):
+        super().__init__(cryo_name, linac_object, cavity_class=QuenchCavity)
+        self.logger = logging.getLogger(f'{self} quench resetter')
+        self.logger.setLevel(logging.DEBUG)
+        self.logfile = f"logfiles/cm{self.name}/cm{self.name}_quench_reset.log"
+        os.makedirs(os.path.dirname(self.logfile), exist_ok=True)
+        self.fh = logging.FileHandler(self.logfile)
+        self.fh.setLevel(logging.DEBUG)
+        self.logger.addHandler(self.fh)
+
+
+QUENCH_CRYOMODULES = scLinac.CryoDict(cavityClass=QuenchCavity,
+                                      cryomoduleClass=QuenchCryomodule)
