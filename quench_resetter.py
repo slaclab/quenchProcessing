@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from epics import PV
 from lcls_tools.superconducting.sc_linac_utils import (ALL_CRYOMODULES,
                                                        CavityFaultError,
@@ -20,14 +22,16 @@ while True:
                         is_real = quench_cav.validate_quench(wait_for_update=True)
                         
                         if not is_real:
-                            quench_cm.logger.info(f"{quench_cav} FAKE quench detected, resetting")
+                            quench_cm.logger.info(f"{datetime.now()} {quench_cav} "
+                                                  f"FAKE quench detected, resetting")
                             quench_cav.reset_interlocks()
                         
                         else:
-                            quench_cm.logger.warning(f"{quench_cav} REAL quench detected, not resetting")
+                            quench_cm.logger.warning(f"{datetime.now()} {quench_cav}"
+                                                     f" REAL quench detected, not resetting")
                     
                     except(TypeError, LinAlgError, IndexError, CavityFaultError) as e:
-                        quench_cm.logger.error(f"{quench_cav} error: {e}")
+                        quench_cm.logger.error(f"{datetime.now()} {quench_cav} error: {e}")
                         print(f"{quench_cav} error:", e)
     
     WATCHER_PV.put(WATCHER_PV.get() + 1)
