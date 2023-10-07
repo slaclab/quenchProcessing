@@ -1,10 +1,13 @@
 import logging
+from time import sleep
 
 from epics import PV
 from lcls_tools.superconducting.scLinac import Cryomodule
-from lcls_tools.superconducting.sc_linac_utils import (ALL_CRYOMODULES,
-                                                       HW_MODE_ONLINE_VALUE,
-                                                       CavityFaultError)
+from lcls_tools.superconducting.sc_linac_utils import (
+    ALL_CRYOMODULES,
+    CavityFaultError,
+    HW_MODE_ONLINE_VALUE,
+)
 from numpy.linalg import LinAlgError
 
 from quench_linac import QUENCH_CRYOMODULES
@@ -12,9 +15,15 @@ from quench_linac import QUENCH_CRYOMODULES
 WATCHER_PV: PV = PV("PHYS:SYS0:1:SC_CAV_QNCH_RESET_HEARTBEAT")
 WATCHER_PV.put(0)
 
-logger = logging.getLogger('srf_quench_resetter')
+logging.basicConfig(
+    format="%(asctime)s %(levelname)-8s %(message)s",
+    level=logging.INFO,
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
+logger = logging.getLogger("srf_quench_resetter")
 logger.setLevel(logging.DEBUG)
-fh = logging.FileHandler('srf_quench_resetter.log')
+fh = logging.FileHandler("srf_quench_resetter.log")
 fh.setLevel(logging.DEBUG)
 logger.addHandler(fh)
 
@@ -26,16 +35,21 @@ while True:
                 if quench_cav.quench_latch_pv_obj.get() == 1:
                     try:
                         is_real = quench_cav.validate_quench(wait_for_update=True)
-                        
+
                         if not is_real:
                             logger.info(f"{quench_cav} FAKE quench detected, resetting")
                             quench_cav.reset_interlocks()
-                        
+
                         else:
-                            logger.warning(f"{quench_cav} REAL quench detected, not resetting")
-                    
-                    except(TypeError, LinAlgError, IndexError, CavityFaultError) as e:
+                            logger.warning(
+                                f"{quench_cav} REAL quench detected, not resetting"
+                            )
+
+                    except (TypeError, LinAlgError, IndexError, CavityFaultError) as e:
                         logger.error(f"{quench_cav} error: {e}")
                         print(f"{quench_cav} error:", e)
-    
+        # Since the resetter doesn't wait anymore, want to wait a second in case
+        # we keep hammering one faulted cavity
+        sleep(1)
+
     WATCHER_PV.put(WATCHER_PV.get() + 1)
