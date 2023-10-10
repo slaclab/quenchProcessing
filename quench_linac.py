@@ -22,13 +22,13 @@ class QuenchCavity(scLinac.Cavity):
         self.pre_quench_amp = None
         self._quench_bypass_rbck_pv: PV = None
         self._current_q_loaded_pv_obj: PV = None
-        
+    
     @property
     def current_q_loaded_pv_obj(self):
         if not self._current_q_loaded_pv_obj:
             self._current_q_loaded_pv_obj = PV(self.current_q_loaded_pv)
         return self._current_q_loaded_pv_obj
-        
+    
     @property
     def hw_mode_pv_obj(self) -> PV:
         if not self._hw_mode_pv_obj:
@@ -62,6 +62,15 @@ class QuenchCavity(scLinac.Cavity):
         if not self._cav_time_waveform_pv:
             self._cav_time_waveform_pv = PV(self.pv_addr("CAV:FLTTWF"))
         return self._cav_time_waveform_pv
+    
+    def reset_interlocks(self, wait: int = 0, attempt: int = 0):
+        """Overwriting base function to skip wait/reset cycle"""
+        print(f"Resetting interlocks for {self}")
+        
+        if not self._interlock_reset_pv_obj:
+            self._interlock_reset_pv_obj = PV(self.interlock_reset_pv)
+        
+        self._interlock_reset_pv_obj.put(1)
     
     def validate_quench(self, wait_for_update: bool = False):
         """
