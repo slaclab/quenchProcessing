@@ -64,6 +64,7 @@ class QuenchCavity(scLinac.Cavity):
         return self._cav_time_waveform_pv
     
     def reset_interlocks(self, wait: int = 0, attempt: int = 0):
+        """Overwriting base function to skip wait/reset cycle"""
         print(f"Resetting interlocks for {self}")
         
         if not self._interlock_reset_pv_obj:

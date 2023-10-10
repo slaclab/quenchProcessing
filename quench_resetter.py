@@ -28,8 +28,12 @@ fh.setLevel(logging.DEBUG)
 logger.addHandler(fh)
 
 while True:
+    # Flag to know if we tried to reset a false quench
+    issued_reset = False
+
     for cryomoduleName in ALL_CRYOMODULES:
         quench_cm: Cryomodule = QUENCH_CRYOMODULES[cryomoduleName]
+
         for quench_cav in quench_cm.cavities.values():
             if quench_cav.hw_mode == HW_MODE_ONLINE_VALUE:
                 if quench_cav.quench_latch_pv_obj.get() == 1:
@@ -39,6 +43,7 @@ while True:
                         if not is_real:
                             logger.info(f"{quench_cav} FAKE quench detected, resetting")
                             quench_cav.reset_interlocks()
+                            issued_reset = True
 
                         else:
                             logger.warning(
@@ -48,8 +53,11 @@ while True:
                     except (TypeError, LinAlgError, IndexError, CavityFaultError) as e:
                         logger.error(f"{quench_cav} error: {e}")
                         print(f"{quench_cav} error:", e)
-        # Since the resetter doesn't wait anymore, want to wait a second in case
-        # we keep hammering one faulted cavity
-        sleep(1)
+
+    # Since the resetter doesn't wait anymore, want to wait in case
+    # we keep hammering one faulted cavity
+    if issued_reset:
+        sleep(3)
+        issued_reset = False
 
     WATCHER_PV.put(WATCHER_PV.get() + 1)
