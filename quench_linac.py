@@ -66,7 +66,7 @@ class QuenchCavity(scLinac.Cavity):
     @property
     def fault_waveform_pv_obj(self) -> PV:
         if not self._fault_waveform_pv_obj:
-            self._fault_waveform_pv_obj = PV(self.pv_addr("CAV:FLTAWF"))
+            self._fault_waveform_pv_obj = PV(self.fault_waveform_pv)
         return self._fault_waveform_pv_obj
 
     @property
