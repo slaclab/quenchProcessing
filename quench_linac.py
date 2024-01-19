@@ -27,8 +27,8 @@ class QuenchCavity(scLinac.Cavity):
 
         self.decay_ref_pv = self.pv_addr("DECAYREFWF")
 
-        self.cav_time_waveform_pv = self.pv_addr("CAV:FLTTWF")
-        self._cav_time_waveform_pv_obj: PV = None
+        self.fault_time_waveform_pv = self.pv_addr("CAV:FLTTWF")
+        self._fault_time_waveform_pv_obj: PV = None
 
         self.srf_max_pv = self.pv_addr("ADES_MAX_SRF")
         self.pre_quench_amp = None
@@ -70,10 +70,10 @@ class QuenchCavity(scLinac.Cavity):
         return self._fault_waveform_pv_obj
 
     @property
-    def cav_time_waveform_pv_obj(self) -> PV:
-        if not self._cav_time_waveform_pv_obj:
-            self._cav_time_waveform_pv_obj = PV(self.cav_time_waveform_pv)
-        return self._cav_time_waveform_pv_obj
+    def fault_time_waveform_pv_obj(self) -> PV:
+        if not self._fault_time_waveform_pv_obj:
+            self._fault_time_waveform_pv_obj = PV(self.fault_time_waveform_pv)
+        return self._fault_time_waveform_pv_obj
 
     def reset_interlocks(self, wait: int = 0, attempt: int = 0):
         """Overwriting base function to skip wait/reset cycle"""
@@ -106,7 +106,7 @@ class QuenchCavity(scLinac.Cavity):
             print(f"Waiting 0.1s to give {self} waveforms a chance to update")
             sleep(0.1)
 
-        time_data = self.cav_time_waveform_pv_obj.value
+        time_data = self.fault_time_waveform_pv_obj.value
         fault_data = self.fault_waveform_pv_obj.value
         time_0 = 0
 

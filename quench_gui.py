@@ -115,9 +115,9 @@ class QuenchGUI(Display):
         self.waveform_updater.updatePlot(
             "FAULT_WAVEFORMS",
             [
-                (self.current_cav.cav_time_waveform_pv, self.current_cav.decay_ref_pv),
+                (self.current_cav.fault_time_waveform_pv, self.current_cav.decay_ref_pv),
                 (
-                    self.current_cav.cav_time_waveform_pv,
+                    self.current_cav.fault_time_waveform_pv,
                     self.current_cav.fault_waveform_pv,
                 ),
             ],
