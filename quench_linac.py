@@ -21,9 +21,15 @@ class QuenchCavity(scLinac.Cavity):
         self.cav_power_pv = self.pv_addr("CAV:PWRMEAN")
         self.forward_power_pv = self.pv_addr("FWD:PWRMEAN")
         self.reverse_power_pv = self.pv_addr("REV:PWRMEAN")
-        self._fault_waveform_pv: PV = None
+
+        self.fault_waveform_pv = self.pv_addr("CAV:FLTAWF")
+        self._fault_waveform_pv_obj: PV = None
+
         self.decay_ref_pv = self.pv_addr("DECAYREFWF")
-        self._cav_time_waveform_pv: PV = None
+
+        self.cav_time_waveform_pv = self.pv_addr("CAV:FLTTWF")
+        self._cav_time_waveform_pv_obj: PV = None
+
         self.srf_max_pv = self.pv_addr("ADES_MAX_SRF")
         self.pre_quench_amp = None
         self._quench_bypass_rbck_pv: PV = None
@@ -58,16 +64,16 @@ class QuenchCavity(scLinac.Cavity):
         return self._quench_bypass_rbck_pv.get() == 1
 
     @property
-    def fault_waveform_pv(self) -> PV:
-        if not self._fault_waveform_pv:
-            self._fault_waveform_pv = PV(self.pv_addr("CAV:FLTAWF"))
-        return self._fault_waveform_pv
+    def fault_waveform_pv_obj(self) -> PV:
+        if not self._fault_waveform_pv_obj:
+            self._fault_waveform_pv_obj = PV(self.pv_addr("CAV:FLTAWF"))
+        return self._fault_waveform_pv_obj
 
     @property
-    def cav_time_waveform_pv(self) -> PV:
-        if not self._cav_time_waveform_pv:
-            self._cav_time_waveform_pv = PV(self.pv_addr("CAV:FLTTWF"))
-        return self._cav_time_waveform_pv
+    def cav_time_waveform_pv_obj(self) -> PV:
+        if not self._cav_time_waveform_pv_obj:
+            self._cav_time_waveform_pv_obj = PV(self.cav_time_waveform_pv)
+        return self._cav_time_waveform_pv_obj
 
     def reset_interlocks(self, wait: int = 0, attempt: int = 0):
         """Overwriting base function to skip wait/reset cycle"""
@@ -100,8 +106,8 @@ class QuenchCavity(scLinac.Cavity):
             print(f"Waiting 0.1s to give {self} waveforms a chance to update")
             sleep(0.1)
 
-        time_data = self.cav_time_waveform_pv.value
-        fault_data = self.fault_waveform_pv.value
+        time_data = self.cav_time_waveform_pv_obj.value
+        fault_data = self.fault_waveform_pv_obj.value
         time_0 = 0
 
         # Look for time 0 (quench). These waveforms capture data beforehand

@@ -78,13 +78,13 @@ class QuenchGUI(Display):
             int(self.ui.cav_combobox.currentText())
         ]
 
-        self.ui.button_ssa_on.clicked.connect(self.current_cav.ssa.turnOn)
-        self.ui.button_ssa_off.clicked.connect(self.current_cav.ssa.turnOff)
-        self.ui.label_ssa_status_rdbk.channel = self.current_cav.ssa.statusPV
+        self.ui.button_ssa_on.clicked.connect(self.current_cav.ssa.turn_on)
+        self.ui.button_ssa_off.clicked.connect(self.current_cav.ssa.turn_off)
+        self.ui.label_ssa_status_rdbk.channel = self.current_cav.ssa.status_pv
 
         self.ui.combobox_rfmode.channel = self.current_cav.rf_control_pv
         self.ui.label_rfmode_rdbk.channel = self.current_cav.rf_mode_pv
-        self.ui.button_rf_on.clicked.connect(self.current_cav.turn_on())
+        self.ui.button_rf_on.clicked.connect(self.current_cav.turn_on)
         self.ui.button_rf_off.clicked.connect(self.current_cav.turnOff)
         self.ui.label_rfstatus_rdbk.channel = self.current_cav.rf_state_pv
         self.ui.ades_spinbox.channel = self.current_cav.ades_pv
