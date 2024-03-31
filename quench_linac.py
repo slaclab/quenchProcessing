@@ -3,21 +3,18 @@ from time import sleep
 
 import numpy as np
 from lcls_tools.common.controls.pyepics.utils import PV
-from lcls_tools.superconducting import scLinac
+from lcls_tools.superconducting import sc_linac
 
 LOADED_Q_CHANGE_FOR_QUENCH = 0.6
 
 
-class QuenchCavity(scLinac.Cavity):
+class QuenchCavity(sc_linac.Cavity):
     def __init__(
         self,
-        cavityNum,
-        rackObject,
-        ssaClass=scLinac.SSA,
-        stepperClass=scLinac.StepperTuner,
-        piezoClass=scLinac.Piezo,
+        cavity_num,
+        rack_object,
     ):
-        super().__init__(cavityNum, rackObject)
+        super().__init__(cavity_num=cavity_num, rack_object=rack_object)
         self.cav_power_pv = self.pv_addr("CAV:PWRMEAN")
         self.forward_power_pv = self.pv_addr("FWD:PWRMEAN")
         self.reverse_power_pv = self.pv_addr("REV:PWRMEAN")
@@ -150,4 +147,4 @@ class QuenchCavity(scLinac.Cavity):
         return is_real
 
 
-QUENCH_CRYOMODULES = scLinac.CryoDict(cavityClass=QuenchCavity)
+QUENCH_MACHINE = sc_linac.Machine(cavity_class=QuenchCavity)
