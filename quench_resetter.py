@@ -2,7 +2,7 @@ import logging
 from time import sleep
 
 from epics import PV
-from lcls_tools.superconducting.scLinac import Cryomodule
+from lcls_tools.superconducting.sc_linac import Cryomodule
 from lcls_tools.superconducting.sc_linac_utils import (
     ALL_CRYOMODULES,
     CavityFaultError,
@@ -10,7 +10,7 @@ from lcls_tools.superconducting.sc_linac_utils import (
 )
 from numpy.linalg import LinAlgError
 
-from quench_linac import QUENCH_CRYOMODULES
+from quench_linac import QUENCH_MACHINE
 
 WATCHER_PV: PV = PV("PHYS:SYS0:1:SC_CAV_QNCH_RESET_HEARTBEAT")
 WATCHER_PV.put(0)
@@ -32,7 +32,7 @@ while True:
     issued_reset = False
 
     for cryomoduleName in ALL_CRYOMODULES:
-        quench_cm: Cryomodule = QUENCH_CRYOMODULES[cryomoduleName]
+        quench_cm: Cryomodule = QUENCH_MACHINE.cryomodules[cryomoduleName]
 
         for quench_cav in quench_cm.cavities.values():
             if quench_cav.hw_mode == HW_MODE_ONLINE_VALUE:
