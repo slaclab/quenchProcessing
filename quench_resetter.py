@@ -16,17 +16,17 @@ from quench_linac import QUENCH_MACHINE
 WATCHER_PV: PV = PV("PHYS:SYS0:1:SC_CAV_QNCH_RESET_HEARTBEAT")
 WATCHER_PV.put(0)
 
-logging.basicConfig(
-    format="%(asctime)s %(levelname)-8s %(message)s",
-    level=logging.INFO,
+formatter = logging.Formatter(
+    fmt="%(asctime)s %(levelname)-8s %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
 logger = logging.getLogger("srf_quench_resetter")
 logger.setLevel(logging.DEBUG)
-fh = logging.FileHandler("srf_quench_resetter.log")
-fh.setLevel(logging.DEBUG)
-logger.addHandler(fh)
+handler = logging.FileHandler("srf_quench_resetter.log", mode="w")
+handler.setFormatter(formatter)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(handler)
 
 while True:
     # Flag to know if we tried to reset a false quench
