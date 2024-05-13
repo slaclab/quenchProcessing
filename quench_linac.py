@@ -6,6 +6,7 @@ from time import sleep
 import numpy as np
 
 from lcls_tools.common.controls.pyepics.utils import EPICS_INVALID_VAL, PV
+from lcls_tools.common.logger.logger import custom_logger, FORMAT_STRING
 from lcls_tools.superconducting import sc_linac
 from lcls_tools.superconducting.sc_linac import Cryomodule
 
@@ -35,6 +36,18 @@ class QuenchCavity(sc_linac.Cavity):
         self.pre_quench_amp = None
         self._quench_bypass_rbck_pv: PV = None
         self._current_q_loaded_pv_obj: PV = None
+
+        self.logger = custom_logger(f"{self} quench resetter")
+
+        self.logfile = (
+            f"logfiles/cm{self.cryomodule.name}/cav{self.number}_quench_reset.log"
+        )
+        os.makedirs(os.path.dirname(self.logfile), exist_ok=True)
+
+        self.file_handler = logging.FileHandler(self.logfile, mode="a")
+        self.file_handler.setFormatter(logging.Formatter(FORMAT_STRING))
+
+        self.logger.addHandler(self.file_handler)
 
     @property
     def current_q_loaded_pv_obj(self):
@@ -143,10 +156,10 @@ class QuenchCavity(sc_linac.Cavity):
         loaded_q = (np.pi * self.frequency) / exponential_term
 
         thresh_for_quench = LOADED_Q_CHANGE_FOR_QUENCH * saved_loaded_q
-        self.cryomodule.logger.info(f"{self} Saved Loaded Q: {saved_loaded_q:.2e}")
-        self.cryomodule.logger.info(f"{self} Last recorded amplitude: {fault_data[0]}")
-        self.cryomodule.logger.info(f"{self} Threshold: {thresh_for_quench:.2e}")
-        self.cryomodule.logger.info(f"{self} Calculated Loaded Q: {loaded_q:.2e}")
+        self.logger.info(f"{self} Saved Loaded Q: {saved_loaded_q:.2e}")
+        self.logger.info(f"{self} Last recorded amplitude: {fault_data[0]}")
+        self.logger.info(f"{self} Threshold: {thresh_for_quench:.2e}")
+        self.logger.info(f"{self} Calculated Loaded Q: {loaded_q:.2e}")
 
         is_real = loaded_q < thresh_for_quench
         print("Validation: ", is_real)
@@ -154,31 +167,4 @@ class QuenchCavity(sc_linac.Cavity):
         return is_real
 
 
-class QuenchCryomodule(Cryomodule):
-    def __init__(self, cryo_name, linac_object):
-        super().__init__(cryo_name, linac_object)
-
-        formatter = logging.Formatter(
-            fmt="%(asctime)s %(levelname)-8s %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
-
-        self.console_handler = logging.StreamHandler(sys.stdout)
-        self.console_handler.setFormatter(formatter)
-
-        self.logger = logging.getLogger(f"{self} quench resetter")
-        self.logger.setLevel(logging.DEBUG)
-
-        self.logfile = f"logfiles/cm{self.name}/cm{self.name}_quench_reset.log"
-        os.makedirs(os.path.dirname(self.logfile), exist_ok=True)
-
-        self.file_handler = logging.FileHandler(self.logfile, mode="w")
-        self.file_handler.setFormatter(formatter)
-
-        self.logger.addHandler(self.file_handler)
-        self.logger.addHandler(self.console_handler)
-
-
-QUENCH_MACHINE = sc_linac.Machine(
-    cavity_class=QuenchCavity, cryomodule_class=QuenchCryomodule
-)
+QUENCH_MACHINE = sc_linac.Machine(cavity_class=QuenchCavity)
