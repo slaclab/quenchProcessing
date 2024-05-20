@@ -1,9 +1,8 @@
 from time import sleep
 
-from epics import PV
 from numpy.linalg import LinAlgError
 
-from lcls_tools.common.controls.pyepics.utils import PVInvalidError
+from lcls_tools.common.controls.pyepics.utils import PVInvalidError, PV
 from lcls_tools.superconducting.sc_linac_utils import (
     ALL_CRYOMODULES,
     HW_MODE_ONLINE_VALUE,
@@ -57,4 +56,7 @@ while True:
         sleep(3)
         issued_reset = False
 
-    WATCHER_PV.put(WATCHER_PV.get() + 1)
+    try:
+        WATCHER_PV.put(WATCHER_PV.get() + 1)
+    except PVInvalidError as e:
+        print(e)
